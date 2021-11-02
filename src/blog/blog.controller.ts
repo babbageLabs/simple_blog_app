@@ -7,32 +7,38 @@ import {
   Post,
   Delete,
   Put,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
-import { Blog } from './blog.schema';
+import { Blog } from './schemas/blog.schema';
 import { CreateCommentDto } from './dto/create-comments.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('blogs')
 export class BlogsController {
-  constructor(private readonly blogsService: BlogService) {
-  }
+  constructor(private readonly blogsService: BlogService) {}
 
   @Post()
-  async create(@Body() blog: CreateBlogDto) {
-    await this.blogsService.create(blog);
+  @UseGuards(JwtAuthGuard)
+  async create(@Body() blog: CreateBlogDto, @Request() req): Promise<Blog> {
+    return this.blogsService.create(blog, req.user);
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async edit(
-    @Param('id', new ParseIntPipe()) id: number,
+    @Param('id') id: string,
     @Body() blog: CreateBlogDto,
+    @Request() req,
   ) {
-    await this.blogsService.edit(blog);
+    await this.blogsService.edit({ ...blog}, req.user, id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  delete(@Param('id', new ParseIntPipe()) id: number): Promise<Blog> {
+  delete(@Param('id') id: string): Promise<Blog> {
     return this.blogsService.delete(id);
   }
 
@@ -41,16 +47,19 @@ export class BlogsController {
     return this.blogsService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id', new ParseIntPipe()) id: number): Promise<Blog> {
+  findOne(@Param('id') id: string): Promise<Blog> {
     return this.blogsService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('like/:id')
   like(@Param('id', new ParseIntPipe()) id: number): Promise<Blog> {
     return this.blogsService.likeBlog(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('unlike/:id')
   unLike(@Param('id', new ParseIntPipe()) id: number): Promise<Blog> {
     return this.blogsService.unlikeBlog(id);

@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Users, UsersDocument } from './users.owner.schema';
+import { Users, UsersDocument } from './schemas/users.owner.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { SALT_WORK_FACTOR } from './constants';
@@ -18,7 +18,7 @@ export class UsersService {
     const existing: User | undefined = await this.findOneByUsername(
       user.username,
     );
-    console.log(222222222, existing);
+
     if (existing) {
       throw new HttpException('User already exists', 400);
     }
@@ -31,11 +31,11 @@ export class UsersService {
   }
 
   async findOneByUsername(username: string): Promise<User | null> {
-    return this.usersModel.findOne({ username }).exec();
+    return this.usersModel.findOne({ username }).lean().exec();
   }
 
   async findAll(): Promise<User[]> {
-    return [];
+    return this.usersModel.find().lean().exec();
   }
 
   async followUser(users: number[]): Promise<User[]> {

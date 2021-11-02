@@ -1,14 +1,21 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 
 import { User, UsersService } from './users.service';
-import { Users } from './users.owner.schema';
+import { Users } from './schemas/users.owner.schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import { use } from 'passport';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post('register')
   async registerUser(@Body() user: CreateUserDto): Promise<Users> {
@@ -20,9 +27,10 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id', new ParseIntPipe()) id: number): Promise<User> {
-    return this.usersService.findOne(id);
+  @UseGuards(JwtAuthGuard)
+  @Get(':username')
+  findOne(@Param('username') username: string): Promise<User> {
+    return this.usersService.findOneByUsername(username);
   }
 
   @Get('follow/:id')
