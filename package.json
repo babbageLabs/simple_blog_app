@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=16.0.0",
+    "node": "17.0.0",
     "yarn": ">=1.22.17"
   },
   "scripts": {
