@@ -42,6 +42,7 @@ export class UsersService {
     return this.usersModel.find().lean().exec();
   }
 
+  // TODO work on the proper logic for follow and unfollow
   async followUser(users: string[], user: any): Promise<any> {
     const followers = await this.userFollowersModel.findOne({
       username: user.username,

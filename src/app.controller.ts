@@ -16,7 +16,6 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @Get('auth/me')
   getProfile(@Request() req) {
-    console.log(77777777777777, req);
     return req.user;
   }
 }

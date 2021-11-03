@@ -13,4 +13,4 @@ export class BlogLikes {
   user: string;
 }
 
-export const BlogSchema = SchemaFactory.createForClass(BlogLikes);
+export const BlogLikesSchema = SchemaFactory.createForClass(BlogLikes);

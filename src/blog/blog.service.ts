@@ -89,12 +89,14 @@ export class BlogService {
         user: user.username,
         blog: id,
       })
-      // .lean()
+      .lean()
       .exec();
+
+    console.log(222222222222, like);
 
     if (like) {
       // delete the like
-      await this.blogLikesModel.deleteOne({ id: like.id });
+      // await this.blogLikesModel.deleteOne({ id: like.id });
       return {
         unliked: true,
       };

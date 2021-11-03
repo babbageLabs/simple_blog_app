@@ -18,4 +18,4 @@ export class BlogComments {
   comment: string;
 }
 
-export const BlogSchema = SchemaFactory.createForClass(BlogComments);
+export const BlogCommentsSchema = SchemaFactory.createForClass(BlogComments);

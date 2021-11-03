@@ -8,7 +8,9 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/nest'),
+    MongooseModule.forRoot(
+      'mongodb+srv://root:.rZaKAqSj6!2Qnh@cluster0.il6j3.mongodb.net/BlogApp?retryWrites=true&w=majority', // TODO move this string to an external env file
+    ),
     AuthModule,
     UsersModule,
     BlogModule,
