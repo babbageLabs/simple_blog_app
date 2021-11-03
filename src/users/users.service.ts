@@ -5,6 +5,7 @@ import { Users, UsersDocument } from './schemas/users.owner.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { SALT_WORK_FACTOR } from './constants';
+import { UserFollowers, UserFollowersDocument } from './schemas/users.followers.schema';
 
 export type User = any;
 
@@ -12,7 +13,10 @@ export type User = any;
 export class UsersService {
   constructor(
     @InjectModel(Users.name) private readonly usersModel: Model<UsersDocument>,
-  ) {}
+    @InjectModel(UserFollowers.name)
+    private readonly userFollowersModel: Model<UserFollowersDocument>,
+  ) {
+  }
 
   async createUser(user: CreateUserDto): Promise<User> {
     const existing: User | undefined = await this.findOneByUsername(
@@ -38,11 +42,42 @@ export class UsersService {
     return this.usersModel.find().lean().exec();
   }
 
-  async followUser(users: number[]): Promise<User[]> {
-    return [];
+  async followUser(users: string[], user: any): Promise<any> {
+    const followers = await this.userFollowersModel.findOne({
+      username: user.username,
+    });
+
+    if (!followers) {
+      return new Promise((resolve) => {
+        return resolve({
+          followersAdded: true,
+        });
+      });
+    }
+
+    return new Promise((resolve) => {
+      return resolve({
+        followersAdded: true,
+      });
+    });
   }
 
-  async unFollowUser(users: number[]): Promise<User[]> {
-    return [];
+  async unFollowUser(users: string[], user: any): Promise<any> {
+    const followers = await this.userFollowersModel.findOne({
+      username: user.username,
+    });
+    if (followers) {
+      return new Promise((resolve) => {
+        return resolve({
+          followersRemoved: true,
+        });
+      });
+    }
+
+    return new Promise((resolve) => {
+      return resolve({
+        followersRemoved: false,
+      });
+    });
   }
 }

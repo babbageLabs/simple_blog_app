@@ -4,6 +4,8 @@ import { Blog, BlogDocument } from './schemas/blog.schema';
 import { Model } from 'mongoose';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { CreateCommentDto } from './dto/create-comments.dto';
+import { BlogLikes, BlogLikesDocument } from './schemas/blog.likes';
+import { BlogComments, BlogCommentsDocument } from './schemas/blog.comments';
 
 function stringToSlug(str) {
   str = str.replace(/^\s+|\s+$/g, ''); // trim
@@ -26,11 +28,15 @@ function stringToSlug(str) {
 
 @Injectable()
 export class BlogService {
-  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+  constructor(
+    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+    @InjectModel(BlogComments.name)
+    private blogCommentsModel: Model<BlogCommentsDocument>,
+    @InjectModel(BlogLikes.name)
+    private blogLikesModel: Model<BlogLikesDocument>,
+  ) {}
 
   async create(blog: CreateBlogDto, user: any): Promise<Blog> {
-    console.log(3333, blog, user);
-
     const slug = stringToSlug(blog.title);
 
     return this.blogModel.create({ ...blog, slug, owner: user.username });
@@ -66,15 +72,48 @@ export class BlogService {
     return this.blogModel.findById(id).lean().exec();
   }
 
-  async likeBlog(id: number): Promise<Blog> {
-    return this.blogModel.find().exec()[0];
+  async likeBlog(id: string, user: any): Promise<BlogLikes> {
+    return this.blogLikesModel.findOneAndUpdate(
+      { blog: id, user: user.username },
+      { blog: id, user: user.username },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+      (error, result) => {
+        if (!error) return;
+      },
+    );
   }
 
-  async unlikeBlog(id: number): Promise<Blog> {
-    return this.blogModel.find().exec()[0];
+  async unlikeBlog(id: string, user: any): Promise<any> {
+    const like = await this.blogLikesModel
+      .find({
+        user: user.username,
+        blog: id,
+      })
+      // .lean()
+      .exec();
+
+    if (like) {
+      // delete the like
+      await this.blogLikesModel.deleteOne({ id: like.id });
+      return {
+        unliked: true,
+      };
+    }
+
+    return {
+      unliked: false,
+    };
   }
 
-  async commentBlog(id: number, comment: CreateCommentDto): Promise<Blog> {
-    return this.blogModel.find().exec()[0];
+  async commentBlog(
+    id: string,
+    comment: CreateCommentDto,
+    user: any,
+  ): Promise<BlogComments> {
+    return this.blogCommentsModel.create({
+      parent: id,
+      user: user.username,
+      ...comment,
+    });
   }
 }

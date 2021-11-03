@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type UsersDocument = UserFollowers & Document;
+export type UserFollowersDocument = UserFollowers & Document;
 
 @Schema()
 export class UserFollowers {
@@ -12,4 +12,4 @@ export class UserFollowers {
   followers: [string];
 }
 
-export const UsersSchema = SchemaFactory.createForClass(UserFollowers);
+export const UserFollowersSchema = SchemaFactory.createForClass(UserFollowers);

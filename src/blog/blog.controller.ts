@@ -15,6 +15,8 @@ import { CreateBlogDto } from './dto/create-blog.dto';
 import { Blog } from './schemas/blog.schema';
 import { CreateCommentDto } from './dto/create-comments.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { BlogLikes } from './schemas/blog.likes';
+import { BlogComments } from './schemas/blog.comments';
 
 @Controller('blogs')
 export class BlogsController {
@@ -33,7 +35,7 @@ export class BlogsController {
     @Body() blog: CreateBlogDto,
     @Request() req,
   ) {
-    await this.blogsService.edit({ ...blog}, req.user, id);
+    await this.blogsService.edit({ ...blog }, req.user, id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -55,21 +57,23 @@ export class BlogsController {
 
   @UseGuards(JwtAuthGuard)
   @Get('like/:id')
-  like(@Param('id', new ParseIntPipe()) id: number): Promise<Blog> {
-    return this.blogsService.likeBlog(id);
+  like(@Param('id') id: string, @Request() req): Promise<BlogLikes> {
+    return this.blogsService.likeBlog(id, req.user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('unlike/:id')
-  unLike(@Param('id', new ParseIntPipe()) id: number): Promise<Blog> {
-    return this.blogsService.unlikeBlog(id);
+  unLike(@Param('id') id: string, @Request() req): Promise<Blog> {
+    return this.blogsService.unlikeBlog(id, req.user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('comment/:id')
   comment(
-    @Param('id', new ParseIntPipe()) id: number,
+    @Param('id') id: string,
     @Body() comment: CreateCommentDto,
-  ): Promise<Blog> {
-    return this.blogsService.commentBlog(id, comment);
+    @Request() req,
+  ): Promise<BlogComments> {
+    return this.blogsService.commentBlog(id, comment, req.user);
   }
 }

@@ -4,7 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Post,
+  Post, Request,
   UseGuards,
 } from '@nestjs/common';
 
@@ -34,12 +34,14 @@ export class UsersController {
   }
 
   @Get('follow/:id')
-  followUser(@Param('id', new ParseIntPipe()) id: number): Promise<User[]> {
-    return this.usersService.followUser([id]);
+  @UseGuards(JwtAuthGuard)
+  followUser(@Param('username') username: string,  @Request() req): Promise<User[]> {
+    return this.usersService.followUser([username], req.user);
   }
 
   @Get('unfollow/:id')
-  unFollowUser(@Param('id', new ParseIntPipe()) id: number): Promise<User[]> {
-    return this.usersService.unFollowUser([id]);
+  @UseGuards(JwtAuthGuard)
+  unFollowUser(@Param('username') username: string,  @Request() req): Promise<User[]> {
+    return this.usersService.unFollowUser([username], req.user);
   }
 }
